@@ -36,7 +36,7 @@
     private Product product = new Product();
     private bool isNew = true;
 
-    protected override async System.Threading.Tasks.Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         if (Id.HasValue)
         {
@@ -53,7 +53,7 @@
         }
     }
 
-    private async System.Threading.Tasks.Task Save()
+    private async Task Save()
     {
         if (isNew)
             await InventoryService.AddAsync(product);
