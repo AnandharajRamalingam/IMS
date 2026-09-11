@@ -1,0 +1,32 @@
+@page "/inventory/details/{Id:guid}"
+@rendermode InteractiveServer
+@inject InventoryManagementSystem.Services.IInventoryService InventoryService
+@using InventoryManagementSystem.Models
+
+<PageTitle>Inventory Details</PageTitle>
+
+@if (product == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h1>@product.Name</h1>
+    <p>@product.Description</p>
+    <dl class="row">
+        <dt class="col-sm-2">Quantity</dt><dd class="col-sm-10">@product.Quantity</dd>
+        <dt class="col-sm-2">Price</dt><dd class="col-sm-10">@product.Price.ToString("C")</dd>
+    </dl>
+    <a class="btn btn-secondary" href="/inventory">Back</a>
+    <a class="btn btn-primary ms-2" href="/inventory/edit/@product.Id">Edit</a>
+}
+
+@code {
+    [Parameter] public System.Guid Id { get; set; }
+    private Product? product;
+
+    protected override async System.Threading.Tasks.Task OnParametersSetAsync()
+    {
+        product = await InventoryService.GetByIdAsync(Id);
+    }
+}

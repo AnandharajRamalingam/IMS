@@ -1,0 +1,67 @@
+@page "/inventory/edit"
+@page "/inventory/edit/{Id:guid}"
+@rendermode InteractiveServer
+@inject InventoryManagementSystem.Services.IInventoryService InventoryService
+@using InventoryManagementSystem.Models
+
+<PageTitle>Inventory Edit</PageTitle>
+
+<h1>@(isNew ? "Add Product" : "Edit Product")</h1>
+
+<EditForm Model="product" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <InputText class="form-control" @bind-Value="product.Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <InputTextArea class="form-control" @bind-Value="product.Description" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <InputNumber class="form-control" @bind-Value="product.Quantity" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Price</label>
+        <InputNumber class="form-control" @bind-Value="product.Price" />
+    </div>
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a class="btn btn-secondary ms-2" href="/inventory">Cancel</a>
+</EditForm>
+
+@code {
+    [Parameter] public System.Guid? Id { get; set; }
+    private Product product = new Product();
+    private bool isNew = true;
+
+    protected override async System.Threading.Tasks.Task OnParametersSetAsync()
+    {
+        if (Id.HasValue)
+        {
+            var p = await InventoryService.GetByIdAsync(Id.Value);
+            if (p != null) product = new Product
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Quantity = p.Quantity,
+                Price = p.Price
+            };
+            isNew = false;
+        }
+    }
+
+    private async System.Threading.Tasks.Task Save()
+    {
+        if (isNew)
+            await InventoryService.AddAsync(product);
+        else
+            await InventoryService.UpdateAsync(product);
+
+        NavigationManager.NavigateTo("/inventory");
+    }
+
+    [Inject] NavigationManager NavigationManager { get; set; } = default!;
+}

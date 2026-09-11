@@ -1,0 +1,57 @@
+@page "/inventory"
+@rendermode InteractiveServer
+@inject InventoryManagementSystem.Services.IInventoryService InventoryService
+@using InventoryManagementSystem.Models
+
+<PageTitle>Inventory</PageTitle>
+
+<h1>Inventory</h1>
+
+<p>
+    <a class="btn btn-primary" href="inventory/edit">Add new product</a>
+</p>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!products.Any())
+{
+    <p>No products.</p>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Name</th><th>Quantity</th><th>Price</th><th></th></tr></thead>
+        <tbody>
+            @foreach(var p in products)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>@p.Quantity</td>
+                    <td>@p.Price.ToString("C")</td>
+                    <td>
+                        <a class="btn btn-sm btn-secondary me-1" href="inventory/details/@p.Id">Details</a>
+                        <a class="btn btn-sm btn-info me-1" href="inventory/edit/@p.Id">Edit</a>
+                        <button class="btn btn-sm btn-danger" @onclick="() => Delete(p.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private System.Collections.Generic.List<Product>? products;
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        products = await InventoryService.GetAllAsync();
+    }
+
+    private async System.Threading.Tasks.Task Delete(System.Guid id)
+    {
+        await InventoryService.DeleteAsync(id);
+        products = await InventoryService.GetAllAsync();
+    }
+}
